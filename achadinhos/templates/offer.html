@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ p.title }} · Achadinhos{% endblock %}
+{% block content %}
+<div class="card">
+  <div style="display:flex;gap:16px;flex-wrap:wrap">
+    {% if p.image_url %}<img src="{{ p.image_url }}" alt="" style="width:160px;height:160px;object-fit:contain;background:#fff;border-radius:8px">{% endif %}
+    <div style="flex:1;min-width:240px">
+      <h2 style="margin:0 0 6px">{{ p.title }}</h2>
+      <div class="muted">{{ p.store }} · {{ p.source }} · {{ p.category }}</div>
+      <p><span class="price" style="font-size:22px">{{ p.price|brl }}</span> {% if p.old_price %}<span class="old">{{ p.old_price|brl }}</span> <span class="badge ok">-{{ p.discount_pct|round|int }}%</span>{% endif %}</p>
+      {% if p.coupon %}<p>Cupom: <b>{{ p.coupon }}</b></p>{% endif %}
+      <p>{% if p.url %}<a class="btn" href="{{ p.url }}" target="_blank" rel="noopener">Ver oferta</a>{% endif %}
+         {% if p.affiliate_url %}<a class="btn secondary" href="{{ p.affiliate_url }}" target="_blank" rel="noopener">Link de afiliado</a>{% endif %}</p>
+      <div class="muted">Primeira vez: {{ p.first_seen.strftime('%d/%m/%Y %H:%M') }} · Última: {{ p.last_seen.strftime('%d/%m/%Y %H:%M') }} (UTC)</div>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <b>Histórico de preço</b> <span class="muted">(inclui repostagens do mesmo produto na mesma loja)</span>
+  {% if points %}<svg class="chart" viewBox="0 0 600 120" preserveAspectRatio="none"><polyline points="{{ points }}"/></svg>{% endif %}
+  <div class="scroll"><table>
+    <tr><th>Quando (UTC)</th><th>Preço</th><th>"De"</th><th>Anúncio</th></tr>
+    {% for pp, prod in history|reverse %}<tr><td>{{ pp.seen_at.strftime('%d/%m/%Y %H:%M') }}</td><td>{{ pp.price|brl }}</td><td class="muted">{{ pp.old_price|brl }}</td>
+      <td class="muted"><a href="/ofertas/{{ prod.id }}">{{ prod.source }} #{{ prod.external_id }}</a></td></tr>{% endfor %}
+  </table></div>
+</div>
+{% endblock %}

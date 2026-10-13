@@ -1,0 +1,24 @@
+# Uso: docker compose up -d   ->  http://localhost:8000
+# Com Postgres: docker compose --profile postgres up -d  (e ajuste DATABASE_URL no .env)
+services:
+  app:
+    build: .
+    ports: ["8000:8000"]
+    env_file:
+      - path: .env
+        required: false
+    volumes: ["./data:/app/data"]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_USER: achadinhos
+      POSTGRES_PASSWORD: achadinhos
+      POSTGRES_DB: achadinhos
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    ports: ["5432:5432"]
+
+volumes:
+  pgdata:

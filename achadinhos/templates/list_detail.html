@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ wl.name }} · Achadinhos{% endblock %}
+{% block content %}
+<p><a href="/listas">← Listas</a></p>
+<div class="card">
+  <b>{{ wl.name }}</b> <span class="badge {{ 'ok' if wl.active }}">{{ 'ativa' if wl.active else 'pausada' }}</span>
+  <span class="muted">· feed JSON: <a href="/api/watchlists/{{ wl.id }}/matches">/api/watchlists/{{ wl.id }}/matches</a></span>
+  <form method="post" action="/listas/{{ wl.id }}">{% include "_list_form.html" %}
+    <p style="display:flex;gap:8px;flex-wrap:wrap"><button>Salvar</button>
+      <a class="btn secondary" href="/listas/{{ wl.id }}?preview=1">Testar nas ofertas das últimas 72 h</a>
+      <button class="danger" name="_action" value="delete" onclick="return confirm('Apagar a lista e seus achados?')" style="margin-left:auto">Apagar</button></p>
+  </form>
+</div>
+
+{% if preview is not none %}
+<div class="card">
+  <b>Teste: {{ preview|length }} oferta(s) recentes casariam</b> <span class="muted">(não grava nada)</span>
+  <div class="scroll"><table>
+    {% for p, ev in preview %}<tr>{% include "_offer_row.html" %}<td><span class="score {{ 'hi' if ev.score >= 50 else 'lo' }}">{{ ev.score|int }}</span>
+      <ul class="reasons">{% for r in ev.reasons %}<li>{{ r }}</li>{% endfor %}</ul></td></tr>
+    {% else %}<tr><td class="muted">Nada casou. Afrouxe os filtros ou espere mais coletas.</td></tr>{% endfor %}
+  </table></div>
+</div>
+{% endif %}
+
+<div class="card">
+  <b>Achados desta lista</b> <span class="muted">(mais recentes primeiro)</span>
+  <div class="scroll"><table>
+    <tr><th></th><th>Oferta</th><th>Preço</th><th>Desc.</th><th>Score</th><th>Quando (UTC)</th></tr>
+    {% for m in matches %}{% set p = m.product %}<tr>{% include "_offer_row.html" %}
+      <td><span class="score {{ 'hi' if m.score >= 50 else 'lo' }}">{{ m.score|int }}</span><ul class="reasons">{% for r in m.reasons %}<li>{{ r }}</li>{% endfor %}</ul></td>
+      <td class="muted">{{ m.created_at.strftime('%d/%m %H:%M') }}{% if m.webhook_status %}<br>webhook {{ m.webhook_status }}{% endif %}</td></tr>
+    {% else %}<tr><td colspan="6" class="muted">Ainda sem achados. Eles aparecem conforme as coletas rodam.</td></tr>{% endfor %}
+  </table></div>
+</div>
+{% endblock %}

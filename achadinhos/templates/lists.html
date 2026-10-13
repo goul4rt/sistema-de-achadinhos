@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Listas · Achadinhos{% endblock %}
+{% block content %}
+<div class="card">
+  <b>Minhas listas</b>
+  <div class="scroll"><table>
+    <tr><th>Lista</th><th>Nicho</th><th>Palavras-chave</th><th>Filtros</th><th>Achados</th><th></th></tr>
+    {% for w, n in rows %}<tr>
+      <td><a href="/listas/{{ w.id }}">{{ w.name }}</a></td><td>{{ w.niche }}</td>
+      <td class="muted">{{ w.keywords|join_list or 'qualquer' }}</td>
+      <td class="muted">{% if w.max_price is not none %}até {{ w.max_price|brl }} {% endif %}{% if w.min_discount %}≥{{ w.min_discount|int }}% {% endif %}{% if w.min_score %}score≥{{ w.min_score|int }} {% endif %}{% if w.stores %}{{ w.stores|join_list }}{% endif %}</td>
+      <td>{{ n }}</td><td><span class="badge {{ 'ok' if w.active }}">{{ 'ativa' if w.active else 'pausada' }}</span></td></tr>
+    {% else %}<tr><td colspan="6" class="muted">Nenhuma lista ainda. Crie a primeira abaixo.</td></tr>{% endfor %}
+  </table></div>
+</div>
+<div class="card">
+  <b>Nova lista</b>
+  <form method="post" action="/listas">{% include "_list_form.html" %}<p><button>Criar lista</button></p></form>
+</div>
+{% endblock %}

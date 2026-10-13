@@ -1,0 +1,29 @@
+{% if errors %}<div class="errors">{% for e in errors %}{{ e }}{% endfor %}</div>{% endif %}
+<div class="row">
+  <div><label>Nome *</label><input type="text" name="name" required value="{{ wl.name if wl else '' }}" placeholder="Ex.: Air fryer barata"></div>
+  <div><label>Nicho / segmento</label><input type="text" name="niche" value="{{ wl.niche if wl else '' }}" placeholder="Ex.: casa, games, bebê"></div>
+</div>
+<label>Palavras-chave (separadas por vírgula; todas as palavras de um termo precisam aparecer; use "aspas" para frase exata). Vazio = qualquer oferta</label>
+<textarea name="keywords" placeholder='air fryer, fritadeira eletrica, "monitor gamer"'>{{ wl.keywords|join_list if wl else '' }}</textarea>
+<label>Excluir se contiver</label>
+<input type="text" name="exclude_keywords" value="{{ wl.exclude_keywords|join_list if wl else '' }}" placeholder="capa, película, usado, recondicionado">
+<div class="row">
+  <div><label>Lojas (vazio = todas)</label><input type="text" name="stores" value="{{ wl.stores|join_list if wl else '' }}" placeholder="Amazon, Mercado Livre, Kabum"></div>
+  <div><label>Categorias (vazio = todas)</label><input type="text" name="categories" value="{{ wl.categories|join_list if wl else '' }}" placeholder="Eletrodomésticos, Games"></div>
+</div>
+<div class="row">
+  <div><label>Preço mín. (R$)</label><input type="number" step="0.01" name="min_price" value="{{ wl.min_price if wl and wl.min_price is not none else '' }}"></div>
+  <div><label>Preço máx. (R$)</label><input type="number" step="0.01" name="max_price" value="{{ wl.max_price if wl and wl.max_price is not none else '' }}"></div>
+  <div><label>Desconto mín. (%)</label><input type="number" step="1" name="min_discount" value="{{ wl.min_discount if wl and wl.min_discount is not none else '' }}"></div>
+  <div><label>Score mín. (0-100)</label><input type="number" step="1" name="min_score" value="{{ wl.min_score if wl and wl.min_score is not none else '' }}"></div>
+</div>
+<label>Fontes (nenhuma marcada = todas)</label>
+<div class="checks">{% for s in sources %}<label><input type="checkbox" name="sources" value="{{ s.name }}" {{ 'checked' if wl and s.name in (wl.sources or []) }}> {{ s.label }}</label>{% endfor %}</div>
+<div class="checks" style="margin-top:8px">
+  <label><input type="checkbox" name="require_coupon" {{ 'checked' if wl and wl.require_coupon }}> só com cupom</label>
+  <label><input type="checkbox" name="active" {{ 'checked' if not wl or wl.active }}> lista ativa</label>
+</div>
+<label>Webhook (opcional): recebe um POST JSON a cada novo achado, para integrar com o disparo</label>
+<input type="url" name="webhook_url" value="{{ wl.webhook_url if wl else '' }}" placeholder="https://seu-sistema/webhooks/achadinhos">
+<label>Descrição</label>
+<input type="text" name="description" value="{{ wl.description if wl else '' }}">

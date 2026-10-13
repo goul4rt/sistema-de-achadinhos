@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid">
+  <div class="card stat"><b>{{ counts.products }}</b><span>ofertas no catálogo</span></div>
+  <div class="card stat"><b>{{ counts.prices }}</b><span>pontos de preço</span></div>
+  <div class="card stat"><b>{{ counts.lists }}</b><span>listas</span></div>
+  <div class="card stat"><b>{{ counts.matches }}</b><span>achados (matches)</span></div>
+</div>
+
+<div class="card">
+  <b>Fontes</b> <span class="muted">{% if next_run %}· próxima coleta {{ next_run.strftime('%H:%M:%S') }} UTC{% else %}· agendador desligado{% endif %}</span>
+  <table>
+    {% for s in sources %}<tr><td>{{ s.label }}</td><td><span class="badge {{ 'ok' if s.enabled() else '' }}">{{ s.status() }}</span></td>
+    <td class="muted">{{ 'feed' if s.supports_feed }}{{ ' busca por palavra-chave' if s.supports_search }}</td></tr>{% endfor %}
+  </table>
+</div>
+
+<div class="card">
+  <form method="get" style="display:flex;gap:8px"><input type="text" name="q" value="{{ q }}" placeholder="Buscar nas ofertas coletadas (título ou loja)"><button>Buscar</button></form>
+  <div class="scroll"><table>
+    <tr><th></th><th>Oferta</th><th>Preço</th><th>Desc.</th><th>Visto</th></tr>
+    {% for p in offers %}<tr>{% include "_offer_row.html" %}<td class="muted">{{ p.last_seen.strftime('%d/%m %H:%M') }}</td></tr>
+    {% else %}<tr><td colspan="5" class="muted">Nada coletado ainda. Clique em "Coletar agora" ou espere o agendador.</td></tr>{% endfor %}
+  </table></div>
+</div>
+
+<div class="card">
+  <b>Últimas coletas</b>
+  <div class="scroll"><table>
+    <tr><th>Fonte</th><th>Início (UTC)</th><th>Lidas</th><th>Novas</th><th>Alteradas</th><th>Matches</th><th>Erro</th></tr>
+    {% for r in runs %}<tr><td>{{ r.source }}{% if r.query %} <span class="muted">"{{ r.query }}"</span>{% endif %}</td>
+      <td>{{ r.started_at.strftime('%d/%m %H:%M:%S') }}</td><td>{{ r.fetched }}</td><td>{{ r.created }}</td><td>{{ r.updated }}</td><td>{{ r.matches }}</td>
+      <td>{% if r.error %}<span class="badge bad">{{ r.error[:120] }}</span>{% elif not r.finished_at %}<span class="muted">rodando…</span>{% endif %}</td></tr>{% endfor %}
+  </table></div>
+</div>
+{% endblock %}
